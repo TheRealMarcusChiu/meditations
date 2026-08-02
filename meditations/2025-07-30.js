@@ -1,8 +1,11 @@
 // 2025-07-30 — The Silversmith
+// Citation syntax: [[shown text||source]]  (source: plain words, a url, or "Label::url").
+// A line starting with "> " is an epigraph / scripture line.
 (window.PRAYERS = window.PRAYERS || []).push({
-  slug: '2025-07-30',
-  title: 'The Silversmith',
-  date: '2025-07-30',
+  slug: "2025-07-30",
+  title: "The Silversmith",
+  date: "2025-07-30",
+  hidden: true,
   body:
 `> "He will sit as a refiner and purifier of silver." [[— Malachi 3:3||Malachi 3:3::https://www.biblegateway.com/passage/?search=Malachi+3%3A3&version=NIV]]
 
