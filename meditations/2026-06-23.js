@@ -1,8 +1,11 @@
 // 2026-06-23 — What Is Beauty?
+// Citation syntax: [[shown text||source]]  (source: plain words, a url, or "Label::url").
+// A line starting with "> " is an epigraph / scripture line.
 (window.PRAYERS = window.PRAYERS || []).push({
-  slug: '2026-06-23',
-  title: 'What Is Beauty?',
-  date: '2026-06-23',
+  slug: "2026-06-23",
+  title: "What Is Beauty?",
+  date: "2026-06-23",
+  hidden: true,
   body:
 `Whether you find it in a quiet walk along the countryside, in someone you love, or in a [[ratatouille dish||In Ratatouille (2007), one taste throws the critic Anton Ego back into his childhood kitchen::https://en.wikipedia.org/wiki/Ratatouille_(film)]] that carries you back to childhood — they all share one thing. Or perhaps two.
 
