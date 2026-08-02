@@ -5,7 +5,6 @@
   slug: "2026-08-02",
   title: "Prayer #3",
   date: "2026-08-02",
-  hidden: true,
   body:
 `[[Our Father in heaven||Matthew 6:9 - https://biblehub.com/matthew/6-9.htm]],
 
