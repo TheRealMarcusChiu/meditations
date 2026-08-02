@@ -2,9 +2,9 @@
 // Citation syntax: [[shown text||source]]  (source: plain words, a url, or "Label::url").
 // A line starting with "> " is an epigraph / scripture line.
 (window.PRAYERS = window.PRAYERS || []).push({
-  slug: '2024-12-28',
-  title: 'Real Food',
-  date: '2024-12-28',
+  slug: "2024-12-28",
+  title: "Real Food",
+  date: "2024-12-28",
   body:
 `Jesus said, [["I am real food and real drink."||John 6:55::https://www.biblegateway.com/passage/?search=John+6%3A55&version=NIV]] I first read it with a sandwich in my hand, and thought — is this sandwich fake?
 
