@@ -1,0 +1,25 @@
+[Unit]
+Description=Documentation=https://git.marcuschiu.com/meditations
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Repo checkout inside the LXC container. server.mjs serves the working
+# directory, so this MUST be the project root (where index.html lives).
+WorkingDirectory=/root/meditations
+ExecStart=/root/.nvm/versions/node/v24.16.0/bin/node server/server.mjs
+# Bound to all interfaces to allow remote connections. The admin API has NO
+# authentication — only expose this behind a trusted network/firewall, and
+# preferably a reverse proxy (nginx/Caddy) for TLS + access control.
+Environment=HOST=0.0.0.0
+Environment=PORT=9008
+Restart=on-failure
+RestartSec=3
+User=root
+# Light hardening (relax if your checkout lives elsewhere).
+NoNewPrivileges=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

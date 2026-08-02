@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<title>Meditations</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500;1,6..72,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="meditations/manifest.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #0f0c09; }
+  ::selection { background: #d8a942; color: #0f0c09; }
+  a { color: #d8a942; }
+  a:hover { color: #e6bb58; }
+  input::placeholder, textarea::placeholder { color: #5f574a; }
+  @keyframes riseIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes menuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes popIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .searchbox:focus-within { border-color: #d8a942 !important; }
+  .row:hover .r-arrow { color: #d8a942; transform: translateX(5px); }
+  .row:hover .r-title { color: #f4ecda; }
+  .fld:focus { border-color: #d8a942 !important; }
+
+  /* reader body */
+  .prose { font-family: 'Newsreader', Georgia, serif; font-size: 20px; line-height: 1.86; color: #cdc1ab; animation: riseIn 0.5s ease both; }
+  .prose > *:first-child { margin-top: 0; }
+  .prose p { margin: 0 0 1.4em; text-wrap: pretty; }
+  .prose blockquote { margin: 0 0 1.7em; padding: 0.1em 0 0.1em 1.3em; border-left: 2px solid rgba(216,169,66,0.6); color: #ded0b6; font-style: italic; font-size: 1.04em; line-height: 1.6; text-wrap: pretty; }
+  .prose em { font-style: italic; color: #e2d6bf; }
+  .prose strong { color: #ece1cf; font-weight: 600; }
+
+  /* citation spans + popover */
+  .cite { color: #e3c983; border-bottom: 1px dashed rgba(216,169,66,0.55); border-radius: 2px; cursor: help; transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
+  .cite:hover, .cite:focus { background: rgba(216,169,66,0.13); border-bottom-color: #d8a942; color: #f0d99a; outline: none; }
+  .cite-pop { animation: popIn 0.13s ease both; color: #cdc1ab; }
+  .cite-link { color: #d8a942; text-decoration: none; border-bottom: 1px solid rgba(216,169,66,0.4); }
+  .cite-link:hover { color: #e6bb58; border-bottom-color: #d8a942; }
+</style>
+</helmet>
+
+<div style="background: #0f0c09; min-height: 100vh; color: #ece1cf; font-family: 'JetBrains Mono', monospace; padding: 0 0 110px; -webkit-font-smoothing: antialiased;">
+
+  <!-- admin: server-unreachable banner -->
+  <sc-if value="{{ serverBanner }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width: 1080px; margin: 0 auto; padding: 22px 40px 0;">
+      <div style="padding: 14px 17px; background: #241310; border: 1px solid #6b2c20; border-radius: 8px; color: #e7b0a4; font-size: 12.5px; line-height: 1.7; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+        <span>Can't reach the admin server at <span style="color: #f0c9bf;">{{ apiBase }}</span>.</span>
+        <button type="button" onClick="{{ openSettings }}" style="background: transparent; border: 1px solid #6b2c20; color: #f0c9bf; border-radius: 5px; padding: 5px 11px; cursor: pointer; font-size: 11px; font-family: 'JetBrains Mono', monospace;" style-hover="border-color: #e7b0a4;">Set endpoint</button>
+        <button type="button" onClick="{{ retryHealth }}" style="background: #6b2c20; border: none; color: #ffe; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 11px; font-family: 'JetBrains Mono', monospace;">Retry</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== INDEX ===================== -->
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width: 1080px; margin: 0 auto; padding: 0 40px;">
+
+    <header style="padding: 100px 0 48px;">
+      <a href="http://{{ eyebrow }}" style="display: inline-block; font-size: 12px; letter-spacing: 0.34em; color: #d8a942; text-transform: uppercase; margin-bottom: 40px; text-decoration: none;" style-hover="color: #ece1cf;">← {{ eyebrow }}</a>
+      <div style="display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;">
+        <h1 style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 500; color: #ece1cf; font-size: clamp(52px, 8vw, 108px); line-height: 0.96; letter-spacing: -0.02em;">{{ title }}</h1>
+        <sc-if value="{{ admin }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size: 10.5px; letter-spacing: 0.24em; text-transform: uppercase; color: #0f0c09; background: #d8a942; border-radius: 4px; padding: 5px 10px; white-space: nowrap;">Admin</span>
+        </sc-if>
+      </div>
+      <p style="margin-top: 30px; max-width: 62ch; font-size: 13.5px; line-height: 1.9; color: #8c8170;">{{ tagline }}</p>
+    </header>
+
+    <!-- controls: search + sort -->
+    <div style="position: relative; z-index: 50; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 6px 0 22px;">
+      <div class="searchbox" style="display: flex; align-items: center; gap: 11px; background: #14100b; border: 1px solid #29221a; border-radius: 7px; padding: 0 15px; flex: 1; min-width: 240px; max-width: 460px; transition: border-color 0.2s ease;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5f574a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+        <input type="text" value="{{ q }}" onChange="{{ onSearch }}" placeholder="Search meditations…" style="flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: #ece1cf; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.02em; padding: 13px 0;">
+        <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ clearQuery }}" title="Clear" style="flex-shrink: 0; background: transparent; border: none; color: #8c8170; cursor: pointer; font-size: 15px; line-height: 1; padding: 4px;" style-hover="color: #d8a942;">✕</button>
+        </sc-if>
+      </div>
+
+      <div style="position: relative;">
+        <button type="button" onClick="{{ toggleSort }}" style="{{ sortBtnStyle }}" style-hover="{{ btnHover }}">
+          <span style="color: #5f574a;">Sort</span>
+          <span style="color: #ece1cf;">{{ sortLabel }}</span>
+          <span style="color: #b78f3a; font-size: 9px;">{{ sortCaret }}</span>
+        </button>
+        <sc-if value="{{ sortOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; top: calc(100% + 8px); right: 0; min-width: 216px; background: #16120c; border: 1px solid #2a2218; border-radius: 8px; padding: 6px; box-shadow: 0 22px 46px -18px rgba(0,0,0,0.75); z-index: 60; display: flex; flex-direction: column; gap: 2px; animation: menuIn 0.16s ease both;">
+            <sc-for list="{{ sortOptions }}" as="o" hint-placeholder-count="4">
+              <button type="button" onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="{{ o.hoverStyle }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <sc-if value="{{ sortOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeMenu }}" style="position: fixed; inset: 0; z-index: 40;"></div>
+    </sc-if>
+
+    <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #5f574a; padding: 0 0 8px;">{{ countLabel }}</div>
+
+    <!-- the index -->
+    <div style="border-top: 1px solid #221c14;">
+      <sc-for list="{{ prayers }}" as="p" hint-placeholder-count="7">
+        <a class="row" href="#/{{ p.slug }}" onClick="{{ p.onOpen }}" style="{{ p.rowStyle }}" style-hover="background: #131009;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 11px; margin-bottom: 12px;">
+              <span style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #b78f3a;">{{ p.dateLabel }}</span>
+              <sc-if value="{{ p.isHidden }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: #8c8170; border: 1px solid #3a2f1a; border-radius: 3px; padding: 3px 7px;">Hidden</span>
+              </sc-if>
+            </div>
+            <h3 class="r-title" style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 500; color: #ece1cf; font-size: 36px; line-height: 1.14; letter-spacing: -0.015em; text-wrap: pretty; transition: color 0.2s ease;">{{ p.title }}</h3>
+          </div>
+          <div style="align-self: center; display: flex; align-items: center; gap: 12px;">
+            <sc-if value="{{ p.showEdit }}" hint-placeholder-val="{{ false }}">
+              <button type="button" title="Edit" onClick="{{ p.onEdit }}" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 7px; cursor: pointer; background: rgba(15,12,9,0.6); border: 1px solid #3a2f1a; color: #d8a942; transition: all 0.18s ease;" style-hover="border-color: #d8a942; background: #1d1710; color: #ece1cf;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+              </button>
+            </sc-if>
+            <sc-if value="{{ p.showArrow }}" hint-placeholder-val="{{ true }}">
+              <div class="r-arrow" style="font-size: 20px; color: #4a4337; transition: color 0.2s ease, transform 0.2s ease;">→</div>
+            </sc-if>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 90px 10px; text-align: center;">
+        <div style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 26px; color: #8c8170;">Nothing here yet.</div>
+        <div style="margin-top: 14px; font-size: 12px; letter-spacing: 0.06em; color: #5f574a;">{{ emptyHint }}</div>
+        <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ clearQuery }}" style="margin-top: 22px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 11px 18px; border-radius: 6px; cursor: pointer; background: transparent; border: 1px solid #3a2f1a; color: #d8a942; font-family: 'JetBrains Mono', monospace;" style-hover="border-color: #d8a942; color: #ece1cf;">Clear search</button>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <footer style="margin-top: 92px; padding-top: 30px; border-top: 1px solid #221c14; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;">
+      <div style="font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #5f574a;">© {{ year }} Marcus Chiu</div>
+      <a href="http://{{ eyebrow }}" style="font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #b78f3a; text-decoration: none;" style-hover="color: #d8a942;">← {{ eyebrow }}</a>
+    </footer>
+
+  </div>
+  </sc-if>
+
+  <!-- ===================== READER ===================== -->
+  <sc-if value="{{ isRead }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width: 720px; margin: 0 auto; padding: 0 32px;">
+
+    <div style="padding: 48px 0 0; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+      <a href="#" onClick="{{ goListClick }}" style="display: inline-flex; align-items: center; gap: 9px; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #8c8170; text-decoration: none;" style-hover="color: #d8a942;">← All meditations</a>
+      <sc-if value="{{ adminRead }}" hint-placeholder-val="{{ false }}">
+        <button type="button" onClick="{{ editCurrent }}" style="display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 9px 16px; border-radius: 6px; cursor: pointer; background: transparent; border: 1px solid #3a2f1a; color: #d8a942;" style-hover="border-color: #d8a942; color: #ece1cf;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+          Edit
+        </button>
+      </sc-if>
+    </div>
+
+    <header style="padding: 42px 0 30px; border-bottom: 1px solid #221c14;">
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+        <span style="font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; color: #b78f3a;">{{ readDate }}</span>
+        <sc-if value="{{ readHidden }}" hint-placeholder-val="{{ false }}">
+          <span style="font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: #8c8170; border: 1px solid #3a2f1a; border-radius: 3px; padding: 3px 7px;">Hidden</span>
+        </sc-if>
+      </div>
+      <h1 style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 500; color: #ece1cf; font-size: clamp(38px, 6vw, 60px); line-height: 1.04; letter-spacing: -0.015em; text-wrap: pretty;">{{ readTitle }}</h1>
+    </header>
+
+    <article style="padding: 46px 0 0;">
+      {{ bodyEl }}
+    </article>
+
+    <!-- prev / next -->
+    <nav style="margin-top: 66px; padding-top: 36px; border-top: 1px solid #221c14; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div>
+        <sc-if value="{{ hasNewer }}" hint-placeholder-val="{{ false }}">
+          <a href="#/{{ newer.slug }}" onClick="{{ newer.onOpen }}" style="display: flex; flex-direction: column; height: 100%; gap: 10px; text-decoration: none; background: #14100b; border: 1px solid #29221a; border-radius: 7px; padding: 20px 22px; transition: border-color 0.25s ease, transform 0.25s ease;" style-hover="border-color: #d8a942; transform: translateY(-3px);">
+            <span style="font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #8c8170;">← Newer</span>
+            <span style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 500; color: #ece1cf; font-size: 19px; line-height: 1.24; text-wrap: pretty;">{{ newer.title }}</span>
+            <span style="margin-top: auto; font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: #b78f3a;">{{ newer.dateLabel }}</span>
+          </a>
+        </sc-if>
+      </div>
+      <div>
+        <sc-if value="{{ hasOlder }}" hint-placeholder-val="{{ false }}">
+          <a href="#/{{ older.slug }}" onClick="{{ older.onOpen }}" style="display: flex; flex-direction: column; height: 100%; gap: 10px; text-align: right; text-decoration: none; background: #14100b; border: 1px solid #29221a; border-radius: 7px; padding: 20px 22px; transition: border-color 0.25s ease, transform 0.25s ease;" style-hover="border-color: #d8a942; transform: translateY(-3px);">
+            <span style="font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #8c8170;">Older →</span>
+            <span style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 500; color: #ece1cf; font-size: 19px; line-height: 1.24; text-wrap: pretty;">{{ older.title }}</span>
+            <span style="margin-top: auto; font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: #b78f3a;">{{ older.dateLabel }}</span>
+          </a>
+        </sc-if>
+      </div>
+    </nav>
+
+    <footer style="margin-top: 56px; padding-top: 28px; border-top: 1px solid #221c14; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;">
+      <a href="#" onClick="{{ goListClick }}" style="font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #b78f3a; text-decoration: none;" style-hover="color: #d8a942;">← More meditations</a>
+      <a href="http://{{ eyebrow }}" style="font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #5f574a; text-decoration: none;" style-hover="color: #d8a942;">← {{ eyebrow }}</a>
+    </footer>
+
+  </div>
+  </sc-if>
+
+  <!-- ===================== EDITOR (admin) ===================== -->
+  <sc-if value="{{ isEdit }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width: 760px; margin: 0 auto; padding: 0 32px;">
+
+    <div style="position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px 0; background: rgba(15,12,9,0.93); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom: 1px solid #221c14;">
+      <button type="button" onClick="{{ cancelEdit }}" style="font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #8c8170; background: transparent; border: none; cursor: pointer; padding: 8px 4px;" style-hover="color: #d8a942;">← Back</button>
+      <span style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 20px; color: #ece1cf;">{{ edHeading }}</span>
+      <div style="flex: 1;"></div>
+      <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; letter-spacing: 0.04em; color: #8c8170;"><span style="{{ apiDotStyle }}"></span>{{ apiStatusText }}</span>
+    </div>
+
+    <sc-if value="{{ edError }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top: 18px; padding: 13px 16px; background: #241310; border: 1px solid #6b2c20; border-radius: 8px; color: #e7b0a4; font-size: 13px;">{{ edError }}</div>
+    </sc-if>
+
+    <div style="margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+      <div>
+        <label style="display: block; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #8c8170; margin-bottom: 9px;">Date</label>
+        <input class="fld" type="date" value="{{ edDate }}" onChange="{{ onEdDate }}" style="width: 100%; background: #14110b; border: 1px solid #2a2218; border-radius: 7px; color: #ece1cf; font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 11px 13px; outline: none; transition: border-color 0.2s ease;">
+      </div>
+      <div>
+        <label style="display: block; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #8c8170; margin-bottom: 9px;">Visibility</label>
+        <button type="button" onClick="{{ toggleEdHidden }}" style="{{ hiddenBtnStyle }}">{{ hiddenLabel }}</button>
+      </div>
+    </div>
+
+    <div style="margin-top: 18px;">
+      <label style="display: block; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #8c8170; margin-bottom: 9px;">Title</label>
+      <input class="fld" type="text" value="{{ edTitle }}" onChange="{{ onEdTitle }}" placeholder="Title" style="width: 100%; background: #14110b; border: 1px solid #2a2218; border-radius: 7px; color: #ece1cf; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 22px; padding: 12px 15px; outline: none; transition: border-color 0.2s ease;">
+    </div>
+
+    <div style="margin-top: 18px;">
+      <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #8c8170; margin-bottom: 9px;">
+        <span>Prayer</span>
+        <span style="letter-spacing: 0.02em; text-transform: none; color: #5f574a; font-size: 11px;">Wrap a source: [[shown||source]] · source can be text, a URL, or Label::URL</span>
+      </label>
+      <textarea class="fld" value="{{ edBody }}" onChange="{{ onEdBody }}" onInput="{{ onEdBody }}" placeholder="Write the meditation… blank line starts a new paragraph, &quot;> &quot; starts an epigraph." style="width: 100%; min-height: 300px; background: #14110b; border: 1px solid #2a2218; border-radius: 7px; color: #cdc1ab; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.7; padding: 16px; resize: vertical; outline: none; transition: border-color 0.2s ease;"></textarea>
+    </div>
+
+    <div style="margin-top: 26px;">
+      <div style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #8c8170; margin-bottom: 14px;">Preview</div>
+      <div style="background: #12100a; border: 1px solid #221c14; border-radius: 9px; padding: 26px 28px;">
+        <div style="font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 500; color: #ece1cf; font-size: 30px; line-height: 1.1; margin-bottom: 20px;">{{ edTitlePreview }}</div>
+        {{ edPreview }}
+      </div>
+    </div>
+
+    <div style="position: sticky; bottom: 0; z-index: 30; margin-top: 26px; display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 16px 0; background: rgba(15,12,9,0.93); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-top: 1px solid #221c14;">
+      <button type="button" onClick="{{ cancelEdit }}" style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; padding: 12px 20px; border-radius: 6px; cursor: pointer; background: transparent; border: 1px solid #29221a; color: #8c8170; font-family: 'JetBrains Mono', monospace;" style-hover="border-color: #4a3c1d; color: #c9bca6;">Cancel</button>
+      <button type="button" onClick="{{ save }}" style="{{ saveBtnStyle }}">{{ saveLabel }}</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- admin: floating settings + create -->
+  <sc-if value="{{ adminBar }}" hint-placeholder-val="{{ false }}">
+    <sc-if value="{{ settingsOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeMenu }}" style="position: fixed; inset: 0; z-index: 95;"></div>
+      <div style="position: fixed; right: 24px; bottom: 96px; z-index: 96; width: 322px; background: #16120c; border: 1px solid #2a2218; border-radius: 10px; padding: 18px; box-shadow: 0 22px 46px -18px rgba(0,0,0,0.8); animation: menuIn 0.16s ease both;">
+        <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #8c8170; margin-bottom: 11px;">Server endpoint</div>
+        <input type="text" value="{{ apiBase }}" onChange="{{ onApiBase }}" onKeyDown="{{ apiKey }}" placeholder="https://git.prayers.lan/" style="width: 100%; background: #14110b; border: 1px solid #2a2218; border-radius: 6px; color: #ece1cf; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 9px 11px; outline: none;">
+        <div style="margin-top: 11px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+          <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: #8c8170;"><span style="{{ apiDotStyle }}"></span>{{ apiStatusText }}</span>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" onClick="{{ resetApiBase }}" style="font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; padding: 7px 11px; border-radius: 6px; cursor: pointer; background: transparent; border: 1px solid #29221a; color: #8c8170; font-family: 'JetBrains Mono', monospace;" style-hover="border-color: #4a3c1d; color: #c9bca6;">Default</button>
+            <button type="button" onClick="{{ commitApiBase }}" style="font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; padding: 7px 13px; border-radius: 6px; cursor: pointer; background: transparent; border: 1px solid #3a2f1a; color: #d8a942; font-family: 'JetBrains Mono', monospace;" style-hover="border-color: #d8a942; color: #ece1cf;">Test</button>
+          </div>
+        </div>
+        <div style="margin-top: 11px; font-size: 11px; line-height: 1.6; color: #5f574a;">Run the server with <span style="color: #8c8170;">node server/server.mjs</span>. Saves are committed and pushed with git.</div>
+      </div>
+    </sc-if>
+
+    <div style="position: fixed; right: 24px; bottom: 24px; z-index: 90; display: flex; flex-direction: column; gap: 12px; align-items: center;">
+      <button type="button" title="Settings" onClick="{{ toggleSettings }}" style="{{ gearBtnStyle }}" style-hover="border-color: #d8a942; color: #ece1cf;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
+      <button type="button" title="New meditation" onClick="{{ openNew }}" style="display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; padding: 0; font-family: 'JetBrains Mono', monospace; font-size: 28px; line-height: 1; border-radius: 50%; cursor: pointer; background: #d8a942; border: 1px solid #d8a942; color: #0f0c09; box-shadow: 0 16px 40px -12px rgba(216,169,66,0.6); transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;" style-hover="background: #e6bb58; transform: translateY(-2px); box-shadow: 0 20px 46px -12px rgba(216,169,66,0.75);">+</button>
+    </div>
+  </sc-if>
+
+  <!-- floating citation tooltip -->
+  {{ citeEl }}
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"defaultSort": {"editor": "enum", "default": "newest", "options": ["newest", "oldest", "az", "za"], "tsType": "string", "section": "Behavior"}, "citeUnderline": {"editor": "enum", "default": "dashed", "options": ["dashed", "dotted", "solid"], "tsType": "string", "section": "Reader"}}'>
+class Component extends DCLogic {
+  state = {
+    route: 'list', slug: '', q: '', sort: 'newest', sortMenu: false, cite: null, all: [], loaded: false,
+    admin: false, ed: null, saving: false, edError: '', settingsOpen: false,
+    apiBase: (() => { try { return localStorage.getItem('meditations.apiBase') || 'https://git.prayers.lan/'; } catch (e) { return 'https://git.prayers.lan/'; } })(),
+    apiStatus: '', serverDown: false,
+  };
+
+  componentDidMount() {
+    window.addEventListener('hashchange', this.syncHash);
+    window.addEventListener('popstate', this.syncHash);
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('keydown', this.onKey);
+    if (this.props.defaultSort) this.setState({ sort: this.props.defaultSort });
+    this.loadData();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('hashchange', this.syncHash);
+    window.removeEventListener('popstate', this.syncHash);
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('keydown', this.onKey);
+    clearTimeout(this._citeT);
+  }
+
+  // Load the manifest (in <helmet>), then inject each meditations/<id>.js file.
+  // Every file push()es its prayer into window.PRAYERS. Works over file://.
+  loadData() {
+    let n = 0;
+    const wait = () => {
+      if (window.MEDITATIONS) return this.loadFiles();
+      if (n++ > 240) return this.setState({ loaded: true });
+      setTimeout(wait, 25);
+    };
+    wait();
+  }
+  loadFiles() {
+    window.PRAYERS = [];
+    const ids = (window.MEDITATIONS || []).slice();
+    if (!ids.length) return this.build();
+    let done = 0;
+    const finish = () => { if (++done >= ids.length) this.build(); };
+    ids.forEach((id) => {
+      const s = document.createElement('script');
+      s.src = 'meditations/' + id + '.js';
+      s.onload = finish;
+      s.onerror = finish;
+      document.head.appendChild(s);
+    });
+  }
+
+  derive(p) {
+    return {
+      slug: String(p.slug), title: p.title || 'Untitled', date: p.date || '', body: p.body || '',
+      hidden: !!p.hidden, ts: this.ts(p.date),
+      dateLabel: this.formatDate(p.date),
+      excerpt: this.makeExcerpt(p.body),
+      hasCites: /\[\[/.test(p.body || ''),
+      search: ((p.title || '') + ' ' + this.plain(p.body || '')).toLowerCase(),
+    };
+  }
+  build() {
+    const all = (window.PRAYERS || []).map((p) => this.derive(p)).sort((a, b) => b.ts - a.ts);
+    this.setState({ all, loaded: true });
+    this.syncHash();
+  }
+
+  ts(d) { const t = Date.parse((d || '') + 'T00:00:00'); return isNaN(t) ? (Date.parse(d) || 0) : t; }
+  today() { const d = new Date(); const p = (n) => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+  formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + 'T00:00:00');
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+  plain(body) {
+    return String(body).replace(/\[\[([\s\S]*?)\|\|[\s\S]*?\]\]/g, '$1').replace(/^\s*>\s?/gm, '').replace(/\s+/g, ' ').trim();
+  }
+  makeExcerpt(body) {
+    const paras = String(body).replace(/\r/g, '').split(/\n{2,}/);
+    let para = paras.find((x) => !/^\s*>/.test(x.trim())) || paras[0] || '';
+    let s = this.plain(para);
+    if (s.length > 150) s = s.slice(0, 150).replace(/\s+\S*$/, '') + '…';
+    return s;
+  }
+
+  // ---- routing (hash based, file:// friendly) ----
+  syncHash = () => {
+    const h = (location.hash || '').replace(/^#\/?/, '');
+    const slug = h ? this.dec(h) : '';
+    if (this.state.route === 'edit') return; // don't let hash changes clobber the editor
+    this.setState({ route: slug ? 'read' : 'list', slug, cite: null, sortMenu: false });
+    window.scrollTo(0, 0);
+  };
+  dec(s) { try { return decodeURIComponent(s); } catch (e) { return s; } }
+  open(slug) { const t = '#/' + slug; if (location.hash === t) this.syncHash(); else location.hash = t; }
+  openClick = (slug) => (e) => {
+    if (e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e.button && e.button !== 0))) return;
+    if (e) e.preventDefault();
+    this.open(slug);
+  };
+  goListClick = (e) => {
+    if (e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e.button && e.button !== 0))) return;
+    if (e) e.preventDefault();
+    if (history.replaceState) history.replaceState('', '', location.pathname + location.search);
+    this.setState({ route: 'list', slug: '', cite: null });
+    window.scrollTo(0, 0);
+  };
+  onScroll = () => { if (this.state.cite) this.setState({ cite: null }); };
+
+  // ---- search / sort ----
+  onSearch = (e) => this.setState({ q: e.target.value });
+  clearQuery = () => this.setState({ q: '' });
+  toggleSort = () => this.setState((s) => ({ sortMenu: !s.sortMenu }));
+  closeMenu = () => this.setState({ sortMenu: false, settingsOpen: false });
+  setSort = (key) => () => this.setState({ sort: key, sortMenu: false });
+
+  // ---- admin ----
+  onKey = (e) => {
+    if ((e.metaKey || e.ctrlKey) && !e.altKey && (e.key === 'e' || e.key === 'E')) {
+      e.preventDefault();
+      this.toggleAdmin();
+    }
+  };
+  toggleAdmin = () => {
+    if (this.state.admin) {
+      this.setState((s) => ({ admin: false, settingsOpen: false, ed: null, edError: '', route: s.route === 'edit' ? 'list' : s.route }));
+    } else {
+      this.setState({ admin: true });
+      this.pingHealth();
+    }
+  };
+
+  // ---- server endpoint ----
+  api(path) { const b = (this.state.apiBase || '').trim().replace(/\/$/, ''); return b + path; }
+  onApiBase = (e) => {
+    const v = String(e.target.value || '');
+    try { const t = v.trim(); if (t) localStorage.setItem('meditations.apiBase', t); } catch (err) {}
+    this.setState({ apiBase: v, apiStatus: '' });
+  };
+  commitApiBase = () => { this.setState({ apiBase: (this.state.apiBase || '').trim() }); this.pingHealth(); };
+  resetApiBase = () => {
+    const v = 'https://git.prayers.lan/';
+    try { localStorage.setItem('meditations.apiBase', v); } catch (e) {}
+    this.setState({ apiBase: v, apiStatus: '' });
+    setTimeout(this.pingHealth, 0);
+  };
+  apiKey = (e) => { if (e.key === 'Enter') { e.preventDefault(); this.commitApiBase(); if (e.target && e.target.blur) e.target.blur(); } };
+  openSettings = () => this.setState({ settingsOpen: true, admin: true });
+  toggleSettings = () => this.setState((s) => ({ settingsOpen: !s.settingsOpen }));
+  retryHealth = () => this.pingHealth();
+  async pingHealth() {
+    this.setState({ apiStatus: 'checking' });
+    try {
+      const r = await fetch(this.api('/api/health'), { method: 'GET' });
+      if (!r.ok) throw new Error('bad');
+      await r.json();
+      this.setState({ apiStatus: 'ok', serverDown: false });
+    } catch (e) {
+      this.setState({ apiStatus: 'fail', serverDown: true });
+    }
+  }
+
+  // ---- editor ----
+  openNew = () => {
+    this.setState({ admin: true, route: 'edit', settingsOpen: false, edError: '', ed: { origId: null, date: this.today(), title: '', hidden: true, body: '' } });
+    window.scrollTo(0, 0);
+    if (this.state.apiStatus !== 'ok') this.pingHealth();
+  };
+  openEdit = (slug) => (e) => {
+    if (e) { e.preventDefault(); if (e.stopPropagation) e.stopPropagation(); }
+    const p = this.state.all.find((x) => x.slug === slug);
+    if (!p) return;
+    this.setState({ admin: true, route: 'edit', settingsOpen: false, edError: '', ed: { origId: p.slug, date: p.date, title: p.title, hidden: !!p.hidden, body: p.body } });
+    window.scrollTo(0, 0);
+    if (this.state.apiStatus !== 'ok') this.pingHealth();
+  };
+  editCurrent = () => this.openEdit(this.state.slug)();
+  cancelEdit = () => { this.setState({ route: 'list', ed: null, edError: '' }); window.scrollTo(0, 0); };
+  setEd(patch) { this.setState((s) => ({ ed: { ...s.ed, ...patch } })); }
+  onEdDate = (e) => this.setEd({ date: e.target.value });
+  onEdTitle = (e) => this.setEd({ title: e.target.value });
+  onEdBody = (e) => this.setEd({ body: e.target.value });
+  toggleEdHidden = () => this.setEd({ hidden: !this.state.ed.hidden });
+
+  save = async () => {
+    const ed = this.state.ed;
+    if (!String(ed.title).trim()) { this.setState({ edError: 'Title is required.' }); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ed.date)) { this.setState({ edError: 'Date must be YYYY-MM-DD.' }); return; }
+    this.setState({ saving: true, edError: '' });
+    try {
+      const r = await fetch(this.api('/api/prayer'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ origId: ed.origId, date: ed.date, title: ed.title.trim(), hidden: ed.hidden, body: ed.body }) });
+      if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || ('HTTP ' + r.status)); }
+      const j = await r.json();
+      this.applySaved(ed, j.id || ed.origId || ed.date);
+      const g = j.git || {};
+      if (g && g.error) window.alert((g.committed ? 'Saved & committed, but git push failed:\n\n' : 'Saved to disk, but git commit failed:\n\n') + g.error);
+      this.setState({ saving: false, serverDown: false, apiStatus: 'ok', route: 'list', ed: null });
+      window.scrollTo(0, 0);
+    } catch (e) {
+      this.setState({ saving: false, edError: String(e && e.message || e), serverDown: true, apiStatus: 'fail' });
+    }
+  };
+  applySaved(ed, id) {
+    const kept = this.state.all.filter((p) => p.slug !== ed.origId && p.slug !== id);
+    kept.push(this.derive({ slug: id, title: ed.title.trim(), date: ed.date, hidden: ed.hidden, body: ed.body }));
+    const all = kept.sort((a, b) => b.ts - a.ts);
+    // keep the client manifest list roughly in sync for this session
+    try { window.MEDITATIONS = [...new Set([...(window.MEDITATIONS || []).filter((x) => x !== ed.origId), id])]; } catch (e) {}
+    this.setState({ all });
+  }
+
+  // ---- citations ----
+  parseSrc(src) {
+    const s = String(src).trim();
+    const dd = s.indexOf('::');
+    if (dd !== -1) {
+      const label = s.slice(0, dd).trim();
+      const url = s.slice(dd + 2).trim();
+      if (/^https?:\/\//i.test(url)) return { isLink: true, label: label || this.host(url), url };
+    }
+    if (/^https?:\/\//i.test(s)) return { isLink: true, label: this.host(s), url: s };
+    return { isLink: false, label: s, url: null };
+  }
+  host(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; } }
+
+  openCite(el, src) {
+    clearTimeout(this._citeT);
+    const r = el.getBoundingClientRect();
+    const place = r.top > 190 ? 'top' : 'bottom';
+    const half = 160;
+    const raw = r.left + r.width / 2;
+    const x = Math.min(Math.max(raw, half), (window.innerWidth || 1200) - half);
+    const y = Math.round(place === 'top' ? r.top - 10 : r.bottom + 10);
+    this._citeEl = el;
+    this.setState({ cite: { src, x: Math.round(x), y, place, dx: Math.round(raw - x) } });
+  }
+  closeCiteSoon = () => { clearTimeout(this._citeT); this._citeT = setTimeout(() => this.setState({ cite: null }), 170); };
+  keepCite = () => clearTimeout(this._citeT);
+  toggleCite(el, src) {
+    if (this.state.cite && this._citeEl === el) { clearTimeout(this._citeT); this.setState({ cite: null }); }
+    else this.openCite(el, src);
+  }
+
+  parseBody(body) {
+    const us = this.props.citeUnderline || 'dashed';
+    const paras = String(body).replace(/\r/g, '').split(/\n{2,}/);
+    return paras.map((para, i) => {
+      if (para.trim() === '') return null;
+      const isBq = /^\s*>/.test(para);
+      const clean = isBq ? para.replace(/^\s*>\s?/gm, '') : para;
+      const lines = clean.split('\n');
+      const kids = [];
+      lines.forEach((ln, li) => {
+        if (li) kids.push(React.createElement('br', { key: 'br' + i + '-' + li }));
+        this.parseInline(ln, i + '-' + li, us).forEach((nd) => kids.push(nd));
+      });
+      return React.createElement(isBq ? 'blockquote' : 'p', { key: 'para' + i }, kids);
+    });
+  }
+  parseInline(text, keyBase, us) {
+    const nodes = [];
+    const re = /\[\[([\s\S]*?)\|\|([\s\S]*?)\]\]/g;
+    let last = 0, m, k = 0;
+    while ((m = re.exec(text))) {
+      if (m.index > last) nodes.push(text.slice(last, m.index));
+      nodes.push(this.citeSpan(m[1], m[2], keyBase + '-c' + (k++), us));
+      last = re.lastIndex;
+    }
+    if (last < text.length) nodes.push(text.slice(last));
+    return nodes;
+  }
+  citeSpan(text, src, key, us) {
+    return React.createElement('span', {
+      key, className: 'cite', tabIndex: 0, role: 'button',
+      style: { borderBottomStyle: us },
+      onMouseEnter: (e) => this.openCite(e.currentTarget, src),
+      onMouseLeave: this.closeCiteSoon,
+      onFocus: (e) => this.openCite(e.currentTarget, src),
+      onBlur: this.closeCiteSoon,
+      onClick: (e) => { e.preventDefault(); this.toggleCite(e.currentTarget, src); },
+    }, text);
+  }
+
+  sortDefs = [
+    { key: 'newest', label: 'Newest first' },
+    { key: 'oldest', label: 'Oldest first' },
+    { key: 'az', label: 'Title A–Z' },
+    { key: 'za', label: 'Title Z–A' },
+  ];
+
+  renderVals() {
+    const site = window.MEDITATIONS_SITE || {};
+    const { q, sort } = this.state;
+    const all = this.state.all;
+    const admin = this.state.admin;
+    const isEdit = this.state.route === 'edit';
+    const isRead = this.state.route === 'read' && !isEdit;
+    const isList = !isRead && !isEdit;
+
+    const pool = admin ? all : all.filter((p) => !p.hidden);
+    const ql = q.trim().toLowerCase();
+    const filtered = ql ? pool.filter((p) => p.search.includes(ql)) : pool;
+    const sorters = {
+      newest: (a, b) => b.ts - a.ts,
+      oldest: (a, b) => a.ts - b.ts,
+      az: (a, b) => a.title.localeCompare(b.title),
+      za: (a, b) => b.title.localeCompare(a.title),
+    };
+    const sorted = filtered.slice().sort(sorters[sort] || sorters.newest);
+    const rowBase = 'display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: start; padding: 32px 10px; border-bottom: 1px solid #221c14; text-decoration: none; transition: background 0.2s ease; animation: riseIn 0.5s ease both;';
+    const prayers = sorted.map((p) => ({
+      ...p,
+      onOpen: this.openClick(p.slug),
+      onEdit: this.openEdit(p.slug),
+      showEdit: admin,
+      showArrow: !admin,
+      isHidden: admin && p.hidden,
+      rowStyle: rowBase + (admin && p.hidden ? ' opacity: 0.62;' : ''),
+    }));
+
+    const menuBtn = { display: 'inline-flex', alignItems: 'center', gap: '10px', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', padding: '12px 15px', borderRadius: '6px', cursor: 'pointer', background: '#14100b', whiteSpace: 'nowrap', transition: 'border-color 0.2s ease' };
+    const sortOpen = this.state.sortMenu;
+    const sortBtnStyle = { ...menuBtn, border: sortOpen ? '1px solid #d8a942' : '1px solid #29221a', color: '#8c8170' };
+    const optBase = { display: 'flex', alignItems: 'center', width: '100%', textAlign: 'left', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: '11.5px', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '11px 12px', borderRadius: '5px', transition: 'all 0.15s ease' };
+    const sortOptions = this.sortDefs.map((s) => {
+      const on = s.key === sort;
+      return {
+        label: s.label, onClick: this.setSort(s.key),
+        style: { ...optBase, background: on ? '#1d1710' : 'transparent', color: on ? '#d8a942' : '#8c8170', boxShadow: on ? 'inset 2px 0 0 #d8a942' : 'none' },
+        hoverStyle: on ? {} : { background: '#1a150e', color: '#ece1cf', boxShadow: 'inset 2px 0 0 #d8a942', paddingLeft: '16px' },
+      };
+    });
+    const sortLabel = (this.sortDefs.find((s) => s.key === sort) || this.sortDefs[0]).label;
+
+    const total = pool.length;
+    const n = prayers.length;
+    const countLabel = !this.state.loaded ? 'Gathering…'
+      : ql ? (n + ' of ' + total + (total === 1 ? ' meditation' : ' meditations'))
+      : (total + (total === 1 ? ' meditation' : ' meditations') + (admin ? ' · admin' : ''));
+
+    // reader
+    const idx = pool.findIndex((p) => p.slug === this.state.slug);
+    const cur = idx >= 0 ? pool[idx] : null;
+    const newer = idx > 0 ? pool[idx - 1] : null;
+    const older = idx >= 0 && idx < pool.length - 1 ? pool[idx + 1] : null;
+    const bodyEl = cur ? React.createElement('div', { className: 'prose' }, this.parseBody(cur.body)) : React.createElement('div', { className: 'prose', style: { color: '#8c8170' } }, 'This meditation could not be found.');
+
+    // editor
+    const ed = this.state.ed || { origId: null, date: '', title: '', hidden: true, body: '' };
+    const hiddenBtnStyle = { width: '100%', textAlign: 'left', fontSize: '12px', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '12px 14px', borderRadius: '7px', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", background: ed.hidden ? '#1d1710' : '#13241a', border: ed.hidden ? '1px solid #3a2f1a' : '1px solid #234a32', color: ed.hidden ? '#d8a942' : '#6fce97' };
+    const saveBtnStyle = { fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', padding: '12px 24px', borderRadius: '6px', cursor: this.state.saving ? 'default' : 'pointer', fontFamily: "'JetBrains Mono', monospace", background: '#d8a942', border: '1px solid #d8a942', color: '#0f0c09', opacity: this.state.saving ? 0.6 : 1 };
+    const edPreview = isEdit
+      ? (ed.body && ed.body.trim()
+        ? React.createElement('div', { className: 'prose' }, this.parseBody(ed.body))
+        : React.createElement('div', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#5f574a' } }, 'The prayer preview will appear here as you write.'))
+      : null;
+
+    // citation popover
+    const c = this.state.cite;
+    let citeEl = null;
+    if (c) {
+      const p = this.parseSrc(c.src);
+      const content = p.isLink
+        ? React.createElement('a', { key: 'ct', className: 'cite-link', href: p.url, target: '_blank', rel: 'noopener noreferrer' }, [p.label, React.createElement('span', { key: 'x', style: { opacity: 0.65 } }, ' ↗')])
+        : React.createElement('span', { key: 'ct', style: { color: '#d3c6ae' } }, p.label);
+      const label = React.createElement('div', { key: 'lb', style: { fontSize: '9.5px', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#b78f3a', marginBottom: '8px' } }, 'Source');
+      const arrowBase = { position: 'absolute', width: '11px', height: '11px', background: '#16120c', borderRight: '1px solid #3a2f1a', borderBottom: '1px solid #3a2f1a', left: 'calc(50% + ' + (c.dx || 0) + 'px)' };
+      const arrow = React.createElement('span', { key: 'ar', 'aria-hidden': 'true', style: c.place === 'top'
+        ? { ...arrowBase, bottom: '-6px', transform: 'translateX(-50%) rotate(45deg)' }
+        : { ...arrowBase, top: '-6px', transform: 'translateX(-50%) rotate(-135deg)' } });
+      citeEl = React.createElement('div', {
+        className: 'cite-pop', onMouseEnter: this.keepCite, onMouseLeave: this.closeCiteSoon,
+        style: { position: 'fixed', left: c.x + 'px', top: c.y + 'px', transform: c.place === 'top' ? 'translate(-50%,-100%)' : 'translate(-50%,0)', zIndex: 200, width: 'max-content', maxWidth: '300px', background: '#16120c', border: '1px solid #3a2f1a', borderRadius: '9px', padding: '13px 16px', boxShadow: '0 22px 46px -18px rgba(0,0,0,0.85)', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', lineHeight: 1.65 },
+      }, [label, content, arrow]);
+    }
+
+    const apiStatus = this.state.apiStatus;
+    const apiDotStyle = { width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0, background: { ok: '#6fce97', fail: '#e7715f', checking: '#d8a942' }[apiStatus] || '#5f574a' };
+    const apiStatusText = apiStatus === 'ok' ? 'Connected' : apiStatus === 'fail' ? 'Unreachable' : apiStatus === 'checking' ? 'Checking…' : 'Not tested';
+
+    return {
+      title: site.title || 'Meditations',
+      eyebrow: site.eyebrow || 'www.marcuschiu.com',
+      tagline: site.tagline || 'Prayers and meditations.',
+      year: new Date().getFullYear(),
+      isList, isRead, isEdit, admin,
+      q, onSearch: this.onSearch, hasQuery: q.length > 0, clearQuery: this.clearQuery,
+      toggleSort: this.toggleSort, sortOpen, sortBtnStyle, sortCaret: sortOpen ? '▲' : '▼', sortLabel, sortOptions,
+      btnHover: { borderColor: '#4a3c1d' }, closeMenu: this.closeMenu, countLabel,
+      prayers,
+      isEmpty: this.state.loaded && n === 0,
+      emptyHint: ql ? ('No meditation matches “' + q + '”.') : (admin ? 'Press + to add your first meditation.' : 'Nothing published yet.'),
+      // reader
+      readTitle: cur ? cur.title : 'Not found',
+      readDate: cur ? cur.dateLabel : '',
+      readHidden: !!(cur && cur.hidden),
+      bodyEl,
+      hasNewer: !!newer, newer: newer ? { slug: newer.slug, title: newer.title, dateLabel: newer.dateLabel, onOpen: this.openClick(newer.slug) } : {},
+      hasOlder: !!older, older: older ? { slug: older.slug, title: older.title, dateLabel: older.dateLabel, onOpen: this.openClick(older.slug) } : {},
+      goListClick: this.goListClick,
+      adminRead: admin && isRead,
+      editCurrent: this.editCurrent,
+      // editor
+      edHeading: ed.origId ? 'Edit meditation' : 'New meditation',
+      edDate: ed.date, onEdDate: this.onEdDate,
+      edTitle: ed.title, onEdTitle: this.onEdTitle, edTitlePreview: ed.title || 'Untitled',
+      edBody: ed.body, onEdBody: this.onEdBody, edPreview,
+      hiddenLabel: ed.hidden ? 'Hidden — admin only' : 'Published — visible to all', hiddenBtnStyle, toggleEdHidden: this.toggleEdHidden,
+      save: this.save, saveBtnStyle, saveLabel: this.state.saving ? 'Saving…' : (ed.origId ? 'Save & push' : 'Create & push'),
+      cancelEdit: this.cancelEdit, edError: this.state.edError,
+      // admin bar + settings
+      adminBar: admin && (isList || isRead),
+      serverBanner: admin && this.state.serverDown && !isEdit,
+      apiBase: this.state.apiBase, onApiBase: this.onApiBase, apiKey: this.apiKey,
+      commitApiBase: this.commitApiBase, resetApiBase: this.resetApiBase,
+      openSettings: this.openSettings, toggleSettings: this.toggleSettings, settingsOpen: this.state.settingsOpen, retryHealth: this.retryHealth,
+      openNew: this.openNew,
+      apiDotStyle, apiStatusText,
+      gearBtnStyle: { width: '46px', height: '46px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', cursor: 'pointer', background: 'rgba(22,18,12,0.94)', border: this.state.settingsOpen ? '1px solid #d8a942' : '1px solid #3a2f1a', color: this.state.settingsOpen ? '#ece1cf' : '#d8a942', WebkitBackdropFilter: 'blur(6px)', backdropFilter: 'blur(6px)', transition: 'all 0.18s ease' },
+      citeEl,
+    };
+  }
+}
+</script>
+</body>
+</html>
