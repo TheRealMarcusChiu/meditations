@@ -1,8 +1,11 @@
 // 2025-07-09 — The Overflow of Praise
+// Citation syntax: [[shown text||source]]  (source: plain words, a url, or "Label::url").
+// A line starting with "> " is an epigraph / scripture line.
 (window.PRAYERS = window.PRAYERS || []).push({
-  slug: '2025-07-09',
-  title: 'The Overflow of Praise',
-  date: '2025-07-09',
+  slug: "2025-07-09",
+  title: "The Overflow of Praise",
+  date: "2025-07-09",
+  hidden: true,
   body:
 `I keep returning to what [[Lewis noticed about praise||C.S. Lewis, "Reflections on the Psalms" (1958), ch. 9 — "A Word About Praising"]] — the most obvious thing about it, which had somehow escaped me. I had thought of praise as compliment, approval, the giving of honor. I had never noticed that [[all enjoyment spontaneously overflows into praise||C.S. Lewis, Reflections on the Psalms]].
 
