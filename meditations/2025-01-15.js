@@ -1,8 +1,10 @@
-// 2025-01-15 — Prayer Mantra
+// 2025-01-15 — Meditational Prayer
+// Citation syntax: [[shown text||source]]  (source: plain words, a url, or "Label::url").
+// A line starting with "> " is an epigraph / scripture line.
 (window.PRAYERS = window.PRAYERS || []).push({
-  slug: '2025-01-15',
-  title: 'Prayer Mantra',
-  date: '2025-01-15',
+  slug: "2025-01-15",
+  title: "Meditational Prayer",
+  date: "2025-01-15",
   body:
 `> "Let us make mankind in our image." [[— God||Genesis 1:26::https://www.biblegateway.com/passage/?search=Genesis+1%3A26&version=NIV]]
 
