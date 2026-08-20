@@ -13,7 +13,6 @@ window.MEDITATIONS_SITE = {
 
 window.MEDITATIONS = [
   '2025-01-15',
-  '2025-07-09',
   '2026-08-02',
   '9999-12-31',
 ];
