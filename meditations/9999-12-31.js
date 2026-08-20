@@ -20,14 +20,16 @@ Others:
 - Jason N with preparing with engagement
 - Jason K responding in a gentle manner within work
 - Damien upcoming Engedi BS - to not only lead but to worship you
-- Mariah to know the truth
-- Stan to know the truth
+- Mariah to know the truth (away from SCJ)
+- Stan to know the truth (away from SCJ)
+- Nico to know the truth (to wrestle with You in his soul)
 - (Uber Driver) going through divorce
 - Orko to know the truth
 - Joy L carry out your grace as a 5th grade teacher
 - Ian give him strength and vigor in his UTD/SMU ministry
 - Jeff H sister going through loss and grief
 - Kim H for her health and grace to speak out the wisdom that you given her
+- Josh H to find opportunity in seeking You (and community) through his relationship
 - Mica H to be bold in speech (stutter and/or shyness?)
 - Aleah to know the will God set for her life
 - Bridget as she trains for half marathon (continue to use her to foster community at church)
@@ -37,5 +39,11 @@ Others:
 - Josiah to find opportunity to depend on you as he job searches
 - Jordan TODO
 - Charles G (Autozone) as he finds community in a church
-- Ritvik (Pizza) as he places value in searching Truth`,
+- Ritvik (Pizza) as he places value in searching Truth
+- Alicia (chipotle) to find opportunity for church community
+- Angelina (chipotle) to find it more blessed to give than to receive
+- Daniel Y for school, engagement/marriage, leading/worshipping at church ministry
+- Chris and Maggie for their new born baby - for health and vigor during sleepless nights ahead
+- Jonny's Indian friend to wrestle with the truth
+`,
 });
