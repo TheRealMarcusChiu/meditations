@@ -150,6 +150,23 @@ async function handleApi(req, res, pathname) {
       return sendJson(res, 500, { error: String(err && err.message || err) });
     }
   }
+  if (pathname === '/api/prayer/delete' && req.method === 'POST') {
+    let d;
+    try { d = JSON.parse(await readBody(req)); } catch { return sendJson(res, 400, { error: 'Invalid JSON.' }); }
+    const id = String(d.id || '').trim();
+    if (!id || /[\\/]/.test(id)) return sendJson(res, 400, { error: 'A valid id is required.' });
+    try {
+      if (!existsSync(fileFor(id))) return sendJson(res, 404, { error: 'No such meditation: ' + id });
+      await rm(fileFor(id), { force: true });
+      const { ids } = await readManifestIds();
+      await writeManifestIds(ids.filter((x) => x !== id));
+      const gitResult = await commitPush(`admin: delete ${id}`);
+      return sendJson(res, 200, { id, deleted: true, git: gitResult });
+    } catch (err) {
+      return sendJson(res, 500, { error: String(err && err.message || err) });
+    }
+  }
+
   return sendJson(res, 404, { error: 'Unknown endpoint.' });
 }
 

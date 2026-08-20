@@ -134,6 +134,9 @@
               <button type="button" title="Edit" onClick="{{ p.onEdit }}" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 7px; cursor: pointer; background: rgba(15,12,9,0.6); border: 1px solid #3a2f1a; color: #d8a942; transition: all 0.18s ease;" style-hover="border-color: #d8a942; background: #1d1710; color: #ece1cf;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
               </button>
+              <button type="button" title="Delete" onClick="{{ p.onDelete }}" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 7px; cursor: pointer; background: rgba(15,12,9,0.6); border: 1px solid #3a2f1a; color: #8c8170; transition: all 0.18s ease;" style-hover="border-color: #6b2c20; background: #241310; color: #e7b0a4;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>
+              </button>
             </sc-if>
             <sc-if value="{{ p.showArrow }}" hint-placeholder-val="{{ true }}">
               <div class="r-arrow" style="font-size: 20px; color: #4a4337; transition: color 0.2s ease, transform 0.2s ease;">→</div>
@@ -266,7 +269,11 @@
       </div>
     </div>
 
-    <div style="position: sticky; bottom: 0; z-index: 30; margin-top: 26px; display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 16px 0; background: rgba(15,12,9,0.93); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-top: 1px solid #221c14;">
+    <div style="position: sticky; bottom: 0; z-index: 30; margin-top: 26px; display: flex; align-items: center; gap: 12px; padding: 16px 0; background: rgba(15,12,9,0.93); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-top: 1px solid #221c14;">
+      <sc-if value="{{ canDelete }}" hint-placeholder-val="{{ false }}">
+        <button type="button" onClick="{{ deleteCurrent }}" style="{{ deleteBtnStyle }}" style-hover="border-color: #e7715f; color: #f0c9bf;">{{ deleteLabel }}</button>
+      </sc-if>
+      <div style="flex: 1;"></div>
       <button type="button" onClick="{{ cancelEdit }}" style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; padding: 12px 20px; border-radius: 6px; cursor: pointer; background: transparent; border: 1px solid #29221a; color: #8c8170; font-family: 'JetBrains Mono', monospace;" style-hover="border-color: #4a3c1d; color: #c9bca6;">Cancel</button>
       <button type="button" onClick="{{ save }}" style="{{ saveBtnStyle }}">{{ saveLabel }}</button>
     </div>
@@ -307,7 +314,7 @@
 class Component extends DCLogic {
   state = {
     route: 'list', slug: '', q: '', sort: 'newest', sortMenu: false, cite: null, all: [], loaded: false,
-    admin: false, ed: null, saving: false, edError: '', settingsOpen: false,
+    admin: false, ed: null, saving: false, deleting: '', edError: '', settingsOpen: false,
     apiBase: (() => { try { return localStorage.getItem('meditations.apiBase') || 'https://git.prayers.lan/'; } catch (e) { return 'https://git.prayers.lan/'; } })(),
     apiStatus: '', serverDown: false,
   };
@@ -482,6 +489,29 @@ class Component extends DCLogic {
   };
   editCurrent = () => this.openEdit(this.state.slug)();
   cancelEdit = () => { this.setState({ route: 'list', ed: null, edError: '' }); window.scrollTo(0, 0); };
+
+  deletePrayer = (slug) => async (e) => {
+    if (e) { e.preventDefault(); if (e.stopPropagation) e.stopPropagation(); }
+    const p = this.state.all.find((x) => x.slug === slug);
+    const name = p ? p.title : slug;
+    if (!window.confirm('Delete “' + name + '”?\n\nThis removes meditations/' + slug + '.js and pushes the change. This cannot be undone.')) return;
+    this.setState({ deleting: slug, edError: '' });
+    try {
+      const r = await fetch(this.api('/api/prayer/delete'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: slug }) });
+      if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || ('HTTP ' + r.status)); }
+      const j = await r.json();
+      const all = this.state.all.filter((x) => x.slug !== slug);
+      try { window.MEDITATIONS = (window.MEDITATIONS || []).filter((x) => x !== slug); } catch (err) {}
+      const g = j.git || {};
+      if (g && g.error) window.alert('Deleted from disk, but git failed:\n\n' + g.error);
+      this.setState({ all, deleting: '', serverDown: false, apiStatus: 'ok', route: 'list', slug: '', ed: null });
+      window.scrollTo(0, 0);
+    } catch (err) {
+      this.setState({ deleting: '', serverDown: true, apiStatus: 'fail', edError: 'Delete failed: ' + String(err && err.message || err) });
+      if (this.state.route !== 'edit') window.alert('Could not reach the server to delete. Check the endpoint in settings (⚙).');
+    }
+  };
+  deleteCurrent = () => { const ed = this.state.ed; if (ed && ed.origId) this.deletePrayer(ed.origId)(); };
   setEd(patch) { this.setState((s) => ({ ed: { ...s.ed, ...patch } })); }
   onEdDate = (e) => this.setEd({ date: e.target.value });
   onEdTitle = (e) => this.setEd({ title: e.target.value });
@@ -618,6 +648,7 @@ class Component extends DCLogic {
       ...p,
       onOpen: this.openClick(p.slug),
       onEdit: this.openEdit(p.slug),
+      onDelete: this.deletePrayer(p.slug),
       showEdit: admin,
       showArrow: !admin,
       isHidden: admin && p.hidden,
@@ -713,6 +744,10 @@ class Component extends DCLogic {
       edBody: ed.body, onEdBody: this.onEdBody, edPreview,
       hiddenLabel: ed.hidden ? 'Hidden — admin only' : 'Published — visible to all', hiddenBtnStyle, toggleEdHidden: this.toggleEdHidden,
       save: this.save, saveBtnStyle, saveLabel: this.state.saving ? 'Saving…' : (ed.origId ? 'Save & push' : 'Create & push'),
+      canDelete: !!ed.origId,
+      deleteCurrent: this.deleteCurrent,
+      deleteLabel: this.state.deleting === ed.origId ? 'Deleting…' : 'Delete',
+      deleteBtnStyle: { fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', padding: '12px 20px', borderRadius: '6px', cursor: this.state.deleting ? 'default' : 'pointer', fontFamily: "'JetBrains Mono', monospace", background: 'transparent', border: '1px solid #6b2c20', color: '#e7b0a4', opacity: this.state.deleting ? 0.6 : 1 },
       cancelEdit: this.cancelEdit, edError: this.state.edError,
       // admin bar + settings
       adminBar: admin && (isList || isRead),
