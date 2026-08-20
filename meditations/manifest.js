@@ -12,7 +12,6 @@ window.MEDITATIONS_SITE = {
 };
 
 window.MEDITATIONS = [
-  '2024-12-28',
   '2025-01-15',
   '2025-07-09',
   '2026-08-02',
