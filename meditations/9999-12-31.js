@@ -45,5 +45,7 @@ Others:
 - Daniel Y for school, engagement/marriage, leading/worshipping at church ministry
 - Chris and Maggie for their new born baby - for health and vigor during sleepless nights ahead
 - Jonny's Indian friend to wrestle with the truth
+- Greg A graceful prayer nights with wife
+- Debrah - kids may see her strictness as love (tbh i still see God as being too strict)
 `,
 });
