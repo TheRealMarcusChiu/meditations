@@ -12,6 +12,7 @@
 - to not tear up when talking about what's closest in my heart
 - seeing and reflecting character of God
 - talk to God about them before to them about God
+- wisdom in given 90% of bonus to the Bible Study group
 
 Others:
 - TJ sis college, recently got promoted
