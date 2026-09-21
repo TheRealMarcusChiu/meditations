@@ -5,7 +5,6 @@
   slug: "2026-09-20",
   title: "Ask & Trust",
   date: "2026-09-20",
-  hidden: true,
   body:
 `LORD put the blood of Jesus over us.
 Guard us where we cannot follow.
