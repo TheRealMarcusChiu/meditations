@@ -8,13 +8,11 @@
   body:
 `LORD put the blood of Jesus over us.
 Guard us where we cannot follow.
-Cover our home, our work, every person tied to us.
+Cover our home, our work, and every person tied to us.
 
-Wherever we go today Your favor goes first.
-Whatever we have missed Your goodness is still behind us catching it.
+Wherever we go today, Your favor goes first.
+Whatever we have missed, Your goodness is still behind us catching it.
 Every plan set quietly against our life,
-We hand it to You,
-And we refuse to be afraid of it.
-Not because I am strong,
-but because You are already there.`,
+We hand it to You, And we refuse to be afraid of it.
+Not because I am strong, but because You are already there.`,
 });
